@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model bookings {
+  id_booking      Int              @id @default(autoincrement())
+  id_user         Int
+  id_resource     Int
+  start_date_time DateTime         @db.DateTime(0)
+  end_date_time   DateTime         @db.DateTime(0)
+  status          bookings_status? @default(CONFIRMADO)
+  created_at      DateTime?        @default(now()) @db.Timestamp(0)
+
+  @@index([id_resource], map: "id_resource")
+  @@index([id_user], map: "fk_user_booking")
+}
+
+model resources {
+  id_resource Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  category    String    @db.VarChar(255)
+  capacity    Int?      @default(1)
+  is_active   Boolean?  @default(true)
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model users {
+  id_user    Int         @id @default(autoincrement())
+  name       String      @db.VarChar(255)
+  email      String      @unique(map: "email") @db.VarChar(255)
+  password   String      @db.VarChar(255)
+  role       users_role? @default(ESTUDANTE)
+  created_at DateTime?   @default(now()) @db.Timestamp(0)
+}
+
+enum users_role {
+  ADMIN
+  ESTUDANTE
+}
+
+enum bookings_status {
+  CONFIRMADO
+  CANCELADO
+}
